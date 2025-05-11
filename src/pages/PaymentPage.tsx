@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderSummary from "../component/OrderSummary";
+
 
 const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -111,11 +111,6 @@ const PaymentPage: React.FC = () => {
       
       <div className="lg:w-[320px]">
         <div className="sticky" style={{ top: 140 }}> {/* Adjusted for header + step process */}
-          <OrderSummary
-            totalPrice={totalPrice}
-            discount={discount}
-            freeShipThreshold={freeShipThreshold}
-          />
           <div className="mt-4">
             <button
               onClick={handleSubmit}
