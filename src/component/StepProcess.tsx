@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export type Step = {
   id: number;
@@ -9,14 +10,32 @@ export type Step = {
 type StepProcessProps = {
   steps: Step[];
   currentStep: number;
-  onStepClick?: (id: number) => void;
 };
 
-const StepProcess: React.FC<StepProcessProps> = ({ steps, currentStep, onStepClick }) => {
+const StepProcess: React.FC<StepProcessProps> = ({ steps, currentStep }) => {
+  const navigate = useNavigate();
+  
+  const handleStepClick = (stepId: number) => {
+    // Map step ID to corresponding route
+    switch (stepId) {
+      case 1:
+        navigate("/cart");
+        break;
+      case 2:
+        navigate("/checkout");
+        break;
+      case 3:
+        navigate("/payment");
+        break;
+      default:
+        navigate("/cart");
+    }
+  };
+
   return (
     <nav
-      className="flex items-center bg-white p-4 border-b border-gray-200 max-w-screen-xl mx-auto"
-      style={{ height: 70, gap: 40 }} // gap tăng khoảng cách giữa các bước
+      className="flex items-center bg-white p-4 w-full"
+      style={{ gap: 40 }} // Increased gap between steps
     >
       {steps.map((step, index) => {
         const isCompleted = step.id < currentStep;
@@ -43,10 +62,10 @@ const StepProcess: React.FC<StepProcessProps> = ({ steps, currentStep, onStepCli
           <React.Fragment key={step.id}>
             <div
               className="flex items-center cursor-pointer min-w-[150px]"
-              onClick={() => onStepClick?.(step.id)}
-              style={{ gap: 12 }} // gap giữa vòng tròn, text và đường nối
+              onClick={() => handleStepClick(step.id)}
+              style={{ gap: 12 }} // Gap between circle and text
             >
-              {/* Vòng tròn số */}
+              {/* Circle number */}
               <div
                 className={`flex items-center justify-center w-6 h-6 rounded-full border text-sm font-medium shrink-0 ${circleClass}`}
                 aria-current={isActive ? "step" : undefined}
@@ -54,13 +73,13 @@ const StepProcess: React.FC<StepProcessProps> = ({ steps, currentStep, onStepCli
                 {step.id}
               </div>
 
-              {/* Tiêu đề + mô tả */}
+              {/* Title + description */}
               <div className="flex flex-col leading-tight">
                 <span className={titleClass}>{step.title}</span>
                 <small className={descClass}>{step.description}</small>
               </div>
 
-              {/* Đường nối đứt đoạn */}
+              {/* Dashed line connector */}
               {index !== steps.length - 1 && (
                 <div
                   className={`border-t-2 border-dashed ${lineColor}`}

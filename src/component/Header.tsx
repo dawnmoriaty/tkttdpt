@@ -1,19 +1,19 @@
-// src/components/Header.tsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   return (
-    <header className="fixed top-0 left-0 w-full h-[65px] bg-[#B6A7DB] border-b border-black/10 z-50 flex justify-center items-center">
-      <div className="w-[1536px] flex justify-center items-center mx-auto">
+    <div className="bg-headerbackground w-full h-full flex justify-center items-center ">
+      <Link to="/" className="flex items-center">
         <img
-          src="src\assets\img\logo.svg"
+          src="/src/assets/img/logo.svg"
           alt="Logo"
           width={158}
           height={29}
           className="object-contain"
         />
-      </div>
-    </header>
+      </Link>
+    </div>
   );
 };
 
