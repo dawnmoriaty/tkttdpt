@@ -5,7 +5,7 @@ type CartItem = {
   id: number;
   imageUrl: string;
   name: string;
-  color: string;
+  type: string;
   size: string;
   price: number;
   quantity: number;
@@ -15,34 +15,34 @@ type CartItem = {
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
   
-  // Initial cart items data
+  // Initial cart items data (updated for flower shop)
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: 1,
       imageUrl: "https://cdn.prod.website-files.com/661302d990875e71045299ee/6617edf6e72357d9447ab673_love-and-romance-thumbnail-image-flowers-x-webflow-template-p-800.jpg",
-      name: "Áo Chống Nắng Nam Có Mũ",
-      color: "Ghi xám",
-      size: "M",
+      name: "Peonies Bouquet",
+      type: "",
+      size: "Simple",
       price: 599000,
       quantity: 1,
       checked: true,
     },
     {
       id: 2,
-      imageUrl: "https://buggy.yodycdn.com/images/product/d9abba07223a44f41244f502f8d08071.webp",
-      name: "Áo Polo Nam Airycool Ép Seam Lá Cổ Laser",
-      color: "Trắng 001",
-      size: "S",
+      imageUrl: "https://cdn.prod.website-files.com/661302d990875e71045299ee/6617ee01fa2bee68afc4cdef_red-roses-thumbnail-image-flowers-x-webflow-template-p-800.jpg",
+      name: "Red Roses Arrangement",
+      type: "",
+      size: "Special",
       price: 399000,
       quantity: 1,
       checked: true,
     },
     {
       id: 3,
-      imageUrl: "https://cdn.prod.website-files.com/661302d990875e71045299ee/6617edf6e72357d9447ab673_love-and-romance-thumbnail-image-flowers-x-webflow-template-p-800.jpg",
-      name: "Áo Chống Nắng Nam Có Mũ",
-      color: "Ghi xám",
-      size: "M",
+      imageUrl: "https://cdn.prod.website-files.com/661302d990875e71045299ee/6617ee1422ec6d35fec5dc2a_sunflower-bouquet-thumbnail-image-flowers-x-webflow-template-p-800.jpg",
+      name: "Sunflower Bouquet",
+      type: "",
+      size: "Simple",
       price: 599000,
       quantity: 1,
       checked: true,
@@ -51,6 +51,7 @@ const CartPage: React.FC = () => {
 
   // State for handling variant selection popup
   const [showVariantPopup, setShowVariantPopup] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   
   // Calculate total price of selected items
@@ -97,6 +98,7 @@ const CartPage: React.FC = () => {
   // Handle item removal
   const handleRemoveItem = (id: number) => {
     setCartItems(cartItems.filter((item) => item.id !== id));
+    setShowDeletePopup(false);
   };
 
   // Handle proceed to checkout
@@ -181,7 +183,10 @@ const CartPage: React.FC = () => {
                     
                     {/* Remove button */}
                     <button 
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => {
+                        setSelectedItemId(item.id);
+                        setShowDeletePopup(true);
+                      }}
                       className="absolute top-0 right-0"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-gray-500">
@@ -198,7 +203,7 @@ const CartPage: React.FC = () => {
                       setShowVariantPopup(true);
                     }}
                   >
-                    {item.color}, {item.size}
+                    {item.size}
                     <span className="inline-flex items-center gap-2 whitespace-nowrap size-3 min-w-3">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="text-gray-700">
                         <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
@@ -283,7 +288,7 @@ const CartPage: React.FC = () => {
           onClick={handleProceedToCheckout}
           disabled={!anySelected}
           className={`inline-flex items-center gap-2 whitespace-nowrap rounded-md font-medium text-white h-11 px-4 py-3 text-base w-full justify-center ${
-            anySelected ? "bg-[#7E66BC] hover:bg-[#6a559f]" : "bg-gray-300 cursor-not-allowed"
+            anySelected ? "bg-[#6750A4] hover:bg-[#6a559f]" : "bg-gray-300 cursor-not-allowed"
           }`}
           aria-label="order"
         >
@@ -296,42 +301,106 @@ const CartPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Variant Selection Popup */}
+      {/* Variant Selection Popup - 420x300 */}
       {showVariantPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md p-6 w-80">
-            <h3 className="text-lg font-medium mb-4">Chọn phiên bản</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Màu sắc</label>
-                <select className="w-full border border-gray-300 rounded-md p-2">
-                  <option value="gray">Ghi xám</option>
-                  <option value="white">Trắng 001</option>
-                  <option value="black">Đen</option>
-                </select>
+          <div className="bg-white rounded-md w-[420px] h-[300px] relative">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h3 className="text-base font-medium">Cập nhật sản phẩm</h3>
+              <button 
+                onClick={() => setShowVariantPopup(false)}
+                className="focus:outline-none"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-14 h-14 bg-gray-200 rounded">
+                  <img 
+                    src={cartItems.find(item => item.id === selectedItemId)?.imageUrl || ""} 
+                    alt="Product" 
+                    className="w-full h-full object-cover rounded"
+                  />
+                </div>
+                <h4 className="text-sm font-medium">
+                  {cartItems.find(item => item.id === selectedItemId)?.name || ""}
+                </h4>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kích cỡ</label>
-                <select className="w-full border border-gray-300 rounded-md p-2">
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                </select>
+              
+              <div className="space-y-6">                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kích thước</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button className="border border-gray-300 rounded-md py-2 text-sm hover:border-purple-500 hover:text-purple-500">Simple</button>
+                    <button className="border border-gray-300 rounded-md py-2 text-sm hover:border-purple-500 hover:text-purple-500">Special</button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="mt-6 flex justify-end gap-3">
+            
+            {/* Footer */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
               <button
                 onClick={() => setShowVariantPopup(false)}
-                className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={() => setShowVariantPopup(false)}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
               >
                 Cập nhật
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Popup - 420x242 */}
+      {showDeletePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-md w-[420px] h-[242px] flex flex-col">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-base font-medium">Xóa sản phẩm</h3>
+              <button 
+                onClick={() => setShowDeletePopup(false)}
+                className="focus:outline-none"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 flex flex-col items-center justify-center p-6">
+              <div className="mb-4">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="24" fill="#F2F2F2"/>
+                  <path d="M32 18L16 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 18L32 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="text-center text-sm">Bạn có chắc muốn xóa sản phẩm này không?</p>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 flex justify-between">
+              <button
+                onClick={() => setShowDeletePopup(false)}
+                className="w-1/2 py-3 text-gray-700 border border-gray-300 rounded-md mr-2 hover:bg-gray-50 text-sm"
+              >
+                Không
+              </button>
+              <button
+                onClick={() => selectedItemId && handleRemoveItem(selectedItemId)}
+                className="w-1/2 py-3 bg-gray-200 text-gray-700 rounded-md ml-2 hover:bg-gray-300 text-sm"
+              >
+                Xóa
               </button>
             </div>
           </div>
