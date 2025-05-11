@@ -14,8 +14,7 @@ type CartItem = {
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
-  
-  // Initial cart items data (updated for flower shop)
+
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: 1,
@@ -49,12 +48,11 @@ const CartPage: React.FC = () => {
     },
   ]);
 
-  // State for handling variant selection popup
   const [showVariantPopup, setShowVariantPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-  
-  // Calculate total price of selected items
+  const [selectedSize, setSelectedSize] = useState<string>("");
+
   const totalPrice = cartItems
     .filter((item) => item.checked)
     .reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -62,10 +60,8 @@ const CartPage: React.FC = () => {
   const discount = 0;
   const finalPrice = totalPrice - discount;
 
-  // Handle quantity change
   const handleQuantityChange = (id: number, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
     setCartItems(
       cartItems.map((item) =>
         item.id === id ? { ...item, quantity: newQuantity } : item
@@ -73,7 +69,6 @@ const CartPage: React.FC = () => {
     );
   };
 
-  // Handle item selection (checkbox)
   const handleItemSelect = (id: number, checked: boolean) => {
     setCartItems(
       cartItems.map((item) =>
@@ -81,27 +76,21 @@ const CartPage: React.FC = () => {
       )
     );
   };
-  
-  // Handle select all items
+
   const handleSelectAll = (checked: boolean) => {
     setCartItems(
       cartItems.map((item) => ({ ...item, checked }))
     );
   };
 
-  // Check if all items are selected
   const allSelected = cartItems.length > 0 && cartItems.every((item) => item.checked);
-  
-  // Check if any items are selected
   const anySelected = cartItems.some((item) => item.checked);
 
-  // Handle item removal
   const handleRemoveItem = (id: number) => {
     setCartItems(cartItems.filter((item) => item.id !== id));
     setShowDeletePopup(false);
   };
 
-  // Handle proceed to checkout
   const handleProceedToCheckout = () => {
     const selectedItems = cartItems.filter((item) => item.checked);
     if (selectedItems.length === 0) {
@@ -111,26 +100,35 @@ const CartPage: React.FC = () => {
     navigate("/checkout");
   };
 
+  const handleUpdateSize = () => {
+    if (selectedItemId && selectedSize) {
+      setCartItems(
+        cartItems.map((item) =>
+          item.id === selectedItemId ? { ...item, size: selectedSize } : item
+        )
+      );
+    }
+    setShowVariantPopup(false);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 px-4 lg:px-36">
       {/* Cart Items Section */}
       <div className="flex-1 space-y-4 bg-white pt-5 pb-6 lg:rounded-lg lg:border lg:border-gray-200 lg:p-6 lg:h-fit lg:space-y-6">
         <div className="flex flex-col gap-4 bg-white px-3 lg:h-fit lg:gap-6 lg:p-0">
-          {/* Select All Checkbox */}
           <div className="inline-flex items-center space-x-2">
-            <button 
-              type="button" 
-              role="checkbox" 
+            <button
+              type="button"
+              role="checkbox"
               aria-checked={allSelected}
               onClick={() => handleSelectAll(!allSelected)}
-              className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${
-                allSelected ? "bg-[#6750A4] border-transparent" : ""
-              }`}
+              className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${allSelected ? "bg-[#6750A4] border-transparent" : ""
+                }`}
             >
               {allSelected && (
                 <span className="flex items-center justify-center text-white">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3 scale-125">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff" />
                   </svg>
                 </span>
               )}
@@ -138,51 +136,43 @@ const CartPage: React.FC = () => {
             <label className="text-sm cursor-pointer">Chọn tất cả</label>
           </div>
 
-          {/* Cart Items */}
           {cartItems.map((item) => (
             <div key={item.id} className="border-b border-gray-200 pb-4">
               <div className="flex items-center gap-4 h-44">
-                {/* Item Checkbox */}
                 <div className="inline-flex items-center">
-                  <button 
-                    type="button" 
-                    role="checkbox" 
+                  <button
+                    type="button"
+                    role="checkbox"
                     aria-checked={item.checked}
                     onClick={() => handleItemSelect(item.id, !item.checked)}
-                    className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${
-                      item.checked ? "bg-[#6750A4] border-transparent" : ""
-                    }`}
+                    className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${item.checked ? "bg-[#6750A4] border-transparent" : ""
+                      }`}
                   >
                     {item.checked && (
                       <span className="flex items-center justify-center text-white">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3 scale-125">
-                          <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff"/>
+                          <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff" />
                         </svg>
                       </span>
                     )}
                   </button>
                 </div>
 
-                {/* Product Image */}
                 <div className="h-44 w-[132px] flex-shrink-0">
-                  <img 
-                    alt={item.name} 
-                    loading="lazy" 
+                  <img
+                    alt={item.name}
+                    loading="lazy"
                     className="h-full w-full object-cover rounded-sm"
                     src={item.imageUrl}
                   />
                 </div>
 
-                {/* Product Details */}
                 <div className="flex flex-1 flex-col h-full relative pb-1">
-                  {/* Product Name */}
                   <div className="flex justify-between">
                     <h3 className="text-base font-medium line-clamp-2 flex-1 pr-6">
                       {item.name}
                     </h3>
-                    
-                    {/* Remove button */}
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedItemId(item.id);
                         setShowDeletePopup(true);
@@ -195,11 +185,11 @@ const CartPage: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Variant button */}
-                  <button 
+                  <button
                     className="inline-flex items-center whitespace-nowrap rounded-md font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-6 gap-1 px-3 py-1 text-xs justify-between w-fit mt-2"
                     onClick={() => {
                       setSelectedItemId(item.id);
+                      setSelectedSize(item.size);
                       setShowVariantPopup(true);
                     }}
                   >
@@ -212,18 +202,17 @@ const CartPage: React.FC = () => {
                   </button>
 
                   <div className="mt-auto flex items-center justify-between w-full">
-                    {/* Quantity Adjuster */}
                     <div className="w-[138px]">
                       <div className="flex items-center justify-between border border-gray-300 rounded-2xl bg-white h-10 px-4">
-                        <button 
-                          className="text-gray-500 cursor-pointer select-none" 
+                        <button
+                          className="text-gray-500 cursor-pointer select-none"
                           onClick={() => handleQuantityChange(item.id, Math.max(1, item.quantity - 1))}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
                           </svg>
                         </button>
-                        <input 
+                        <input
                           className="w-12 border-none bg-transparent outline-none text-center"
                           inputMode="numeric"
                           value={item.quantity}
@@ -234,8 +223,8 @@ const CartPage: React.FC = () => {
                             }
                           }}
                         />
-                        <button 
-                          className="cursor-pointer select-none" 
+                        <button
+                          className="cursor-pointer select-none"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
@@ -245,7 +234,6 @@ const CartPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Price */}
                     <div className="flex flex-col items-end">
                       <p className="text-lg font-medium">{(item.price).toLocaleString()}đ</p>
                     </div>
@@ -257,7 +245,6 @@ const CartPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Order Summary */}
       <div className="sticky top-0 w-full lg:w-[436px] h-fit max-h-[300px] space-y-3 rounded-lg border border-gray-200 p-6 bg-white">
         <p className="text-lg font-medium">Chi tiết đơn hàng</p>
         <div className="flex justify-between">
@@ -284,12 +271,11 @@ const CartPage: React.FC = () => {
           </svg>
           <p className="text-sm">Đơn được miễn phí vận chuyển nhé!</p>
         </div>
-        <button 
+        <button
           onClick={handleProceedToCheckout}
           disabled={!anySelected}
-          className={`inline-flex items-center gap-2 whitespace-nowrap rounded-md font-medium text-white h-11 px-4 py-3 text-base w-full justify-center ${
-            anySelected ? "bg-[#6750A4] hover:bg-[#6a559f]" : "bg-gray-300 cursor-not-allowed"
-          }`}
+          className={`inline-flex items-center gap-2 whitespace-nowrap rounded-md font-medium text-white h-11 px-4 py-3 text-base w-full justify-center ${anySelected ? "bg-[#6750A4] hover:bg-[#6a559f]" : "bg-gray-300 cursor-not-allowed"
+            }`}
           aria-label="order"
         >
           Đặt hàng
@@ -301,55 +287,63 @@ const CartPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Variant Selection Popup - 420x300 */}
+      {/* Variant Selection Popup - 420x301 */}
       {showVariantPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md w-[420px] h-[300px] relative">
+          <div className="bg-white rounded-md w-[420px] h-[301px] flex flex-col">
             {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <h3 className="text-base font-medium">Cập nhật sản phẩm</h3>
-              <button 
+              <button
                 onClick={() => setShowVariantPopup(false)}
                 className="focus:outline-none"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             </div>
-            
+
             {/* Content */}
-            <div className="p-6">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-14 h-14 bg-gray-200 rounded">
-                  <img 
-                    src={cartItems.find(item => item.id === selectedItemId)?.imageUrl || ""} 
-                    alt="Product" 
-                    className="w-full h-full object-cover rounded"
-                  />
-                </div>
-                <h4 className="text-sm font-medium">
+            <div className="flex-1 flex items-center p-4">
+              {/* Image container with padding */}
+              <div className="p-[17px]">
+                <img
+                  src={cartItems.find(item => item.id === selectedItemId)?.imageUrl || ""}
+                  alt="Product"
+                  className="w-[88px] h-[117px] object-cover rounded"
+                />
+              </div>
+              {/* Information on the right */}
+              <div className="flex-1 pl-4 flex flex-col justify-between">
+                <h4 className="text-sm font-medium mb-2">
                   {cartItems.find(item => item.id === selectedItemId)?.name || ""}
                 </h4>
-              </div>
-              
-              <div className="space-y-6">                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Kích thước</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="border border-gray-300 rounded-md py-2 text-sm hover:border-purple-500 hover:text-purple-500">Simple</button>
-                    <button className="border border-gray-300 rounded-md py-2 text-sm hover:border-purple-500 hover:text-purple-500">Special</button>
-                  </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    className={`border rounded-[16px] text-[14px] w-[85px] h-[20px] flex items-center justify-center font-medium ${selectedSize === "Simple" ? "border-purple-500 text-purple-500" : "border-gray-300 text-gray-700"}`}
+                    onClick={() => setSelectedSize("Simple")}
+                  >
+                    Simple
+                  </button>
+                  <button
+                    className={`border rounded-[16px] text-[14px] w-[85px] h-[20px] flex items-center justify-center font-medium ${selectedSize === "Special" ? "border-purple-500 text-purple-500" : "border-gray-300 text-gray-700"}`}
+                    onClick={() => setSelectedSize("Special")}
+                  >
+                    Special
+                  </button>
                 </div>
               </div>
             </div>
-            
+
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200">
               <button
-                onClick={() => setShowVariantPopup(false)}
-                className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
+                onClick={handleUpdateSize}
+                disabled={!selectedSize}
+                className={`w-full h-[40px] text-sm rounded-md text-white font-medium ${selectedSize ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-300 cursor-not-allowed"
+                  }`}
               >
                 Cập nhật
               </button>
@@ -365,34 +359,34 @@ const CartPage: React.FC = () => {
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <h3 className="text-base font-medium">Xóa sản phẩm</h3>
-              <button 
+              <button
                 onClick={() => setShowDeletePopup(false)}
                 className="focus:outline-none"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             </div>
-            
+
             {/* Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6">
+            <div className="flex-1 flex flex-col items-center justify-center p-4">
               <div className="mb-4">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="48" height="48" rx="24" fill="#F2F2F2"/>
-                  <path d="M32 18L16 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 18L32 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect width="48" height="48" rx="24" fill="#F2F2F2" />
+                  <path d="M32 18L16 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 18L32 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <p className="text-center text-sm">Bạn có chắc muốn xóa sản phẩm này không?</p>
             </div>
-            
+
             {/* Footer */}
             <div className="p-4 border-t border-gray-200 flex justify-between">
               <button
                 onClick={() => setShowDeletePopup(false)}
-                className="w-1/2 py-3 text-gray-700 border border-gray-300 rounded-md mr-2 hover:bg-gray-50 text-sm"
+                className="w-1/2 py-3 text-gray-700 border border-gray-300 rounded-md mr-2 hover:bg-gray-50 text-sm bg-white"
               >
                 Không
               </button>
@@ -406,6 +400,7 @@ const CartPage: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
