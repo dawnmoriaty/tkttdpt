@@ -1,5 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, ChevronDown, Plus, Minus, ArrowRight, Truck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type CartItem = {
   id: number;
@@ -107,8 +122,19 @@ const CartPage: React.FC = () => {
           item.id === selectedItemId ? { ...item, size: selectedSize } : item
         )
       );
+      setShowVariantPopup(false);
     }
-    setShowVariantPopup(false);
+  };
+
+  const openVariantDialog = (item: CartItem) => {
+    setSelectedItemId(item.id);
+    setSelectedSize(item.size);
+    setShowVariantPopup(true);
+  };
+
+  const openDeleteDialog = (itemId: number) => {
+    setSelectedItemId(itemId);
+    setShowDeletePopup(true);
   };
 
   return (
@@ -117,22 +143,11 @@ const CartPage: React.FC = () => {
       <div className="flex-1 space-y-4 bg-white pt-5 pb-6 lg:rounded-lg lg:border lg:border-gray-200 lg:p-6 lg:h-fit lg:space-y-6">
         <div className="flex flex-col gap-4 bg-white px-3 lg:h-fit lg:gap-6 lg:p-0">
           <div className="inline-flex items-center space-x-2">
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={allSelected}
-              onClick={() => handleSelectAll(!allSelected)}
-              className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${allSelected ? "bg-[#6750A4] border-transparent" : ""
-                }`}
-            >
-              {allSelected && (
-                <span className="flex items-center justify-center text-white">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3 scale-125">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff" />
-                  </svg>
-                </span>
-              )}
-            </button>
+            <Checkbox 
+              checked={allSelected}
+              onCheckedChange={handleSelectAll}
+              className="h-4 w-4 rounded-sm border-gray-300 hover:border-gray-400 data-[state=checked]:bg-[#6750A4] data-[state=checked]:border-transparent"
+            />
             <label className="text-sm cursor-pointer">Chọn tất cả</label>
           </div>
 
@@ -140,22 +155,11 @@ const CartPage: React.FC = () => {
             <div key={item.id} className="border-b border-gray-200 pb-4">
               <div className="flex items-center gap-4 h-44">
                 <div className="inline-flex items-center">
-                  <button
-                    type="button"
-                    role="checkbox"
-                    aria-checked={item.checked}
-                    onClick={() => handleItemSelect(item.id, !item.checked)}
-                    className={`group h-4 w-4 rounded-sm shrink-0 border border-gray-300 outline-none hover:border-gray-400 ${item.checked ? "bg-[#6750A4] border-transparent" : ""
-                      }`}
-                  >
-                    {item.checked && (
-                      <span className="flex items-center justify-center text-white">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3 scale-125">
-                          <path fillRule="evenodd" clipRule="evenodd" d="M12.0303 5.21967C12.3232 5.51256 12.3232 5.98744 12.0303 6.28033L7.53033 10.7803C7.23744 11.0732 6.76256 11.0732 6.46967 10.7803L4.21967 8.53033C3.92678 8.23744 3.92678 7.76256 4.21967 7.46967C4.51256 7.17678 4.98744 7.17678 5.28033 7.46967L7 9.18934L10.9697 5.21967C11.2626 4.92678 11.7374 4.92678 12.0303 5.21967Z" fill="#ffffff" />
-                        </svg>
-                      </span>
-                    )}
-                  </button>
+                  <Checkbox 
+                    checked={item.checked}
+                    onCheckedChange={(checked) => handleItemSelect(item.id, !!checked)}
+                    className="h-4 w-4 rounded-sm border-gray-300 hover:border-gray-400 data-[state=checked]:bg-[#6750A4] data-[state=checked]:border-transparent"
+                  />
                 </div>
 
                 <div className="h-44 w-[132px] flex-shrink-0">
@@ -172,48 +176,40 @@ const CartPage: React.FC = () => {
                     <h3 className="text-base font-medium line-clamp-2 flex-1 pr-6">
                       {item.name}
                     </h3>
-                    <button
-                      onClick={() => {
-                        setSelectedItemId(item.id);
-                        setShowDeletePopup(true);
-                      }}
-                      className="absolute top-0 right-0"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-0 right-0 h-6 w-6 text-gray-500 hover:text-gray-700"
+                      onClick={() => openDeleteDialog(item.id)}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-gray-500">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                      </svg>
-                    </button>
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
                   </div>
 
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="inline-flex items-center whitespace-nowrap rounded-md font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-6 gap-1 px-3 py-1 text-xs justify-between w-fit mt-2"
-                    onClick={() => {
-                      setSelectedItemId(item.id);
-                      setSelectedSize(item.size);
-                      setShowVariantPopup(true);
-                    }}
+                    onClick={() => openVariantDialog(item)}
                   >
                     {item.size}
-                    <span className="inline-flex items-center gap-2 whitespace-nowrap size-3 min-w-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="text-gray-700">
-                        <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                      </svg>
-                    </span>
-                  </button>
+                    <ChevronDown className="ml-1 h-3 w-3 text-gray-700" />
+                  </Button>
 
                   <div className="mt-auto flex items-center justify-between w-full">
                     <div className="w-[138px]">
                       <div className="flex items-center justify-between border border-gray-300 rounded-2xl bg-white h-10 px-4">
-                        <button
-                          className="text-gray-500 cursor-pointer select-none"
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="p-0 text-gray-500 hover:bg-transparent hover:text-gray-700"
                           onClick={() => handleQuantityChange(item.id, Math.max(1, item.quantity - 1))}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
-                          </svg>
-                        </button>
-                        <input
-                          className="w-12 border-none bg-transparent outline-none text-center"
+                          <Minus className="h-5 w-5" />
+                        </Button>
+                        <Input
+                          className="w-12 border-none bg-transparent text-center p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          type="number"
                           inputMode="numeric"
                           value={item.quantity}
                           onChange={(e) => {
@@ -223,14 +219,14 @@ const CartPage: React.FC = () => {
                             }
                           }}
                         />
-                        <button
-                          className="cursor-pointer select-none"
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="p-0 hover:bg-transparent hover:text-gray-700"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                          </svg>
-                        </button>
+                          <Plus className="h-5 w-5" />
+                        </Button>
                       </div>
                     </div>
 
@@ -245,6 +241,7 @@ const CartPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Order Summary */}
       <div className="sticky top-0 w-full lg:w-[436px] h-fit max-h-[300px] space-y-3 rounded-lg border border-gray-200 p-6 bg-white">
         <p className="text-lg font-medium">Chi tiết đơn hàng</p>
         <div className="flex justify-between">
@@ -255,7 +252,7 @@ const CartPage: React.FC = () => {
           <p className="text-gray-700">Giảm giá</p>
           <p className="text-gray-700">{discount.toLocaleString()}đ</p>
         </div>
-        <div className="border border-dashed border-gray-300"></div>
+        <Separator className="border-dashed border-gray-300" />
         <div className="flex w-full justify-between">
           <p className="text-gray-700">Thành tiền</p>
           <div className="flex flex-col items-end justify-end gap-[2px]">
@@ -266,140 +263,121 @@ const CartPage: React.FC = () => {
           </div>
         </div>
         <div className="mb-3 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 text-green-600">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-          </svg>
+          <Truck className="w-4 h-4 text-green-600" />
           <p className="text-sm">Đơn được miễn phí vận chuyển nhé!</p>
         </div>
-        <button
+        <Button
           onClick={handleProceedToCheckout}
           disabled={!anySelected}
-          className={`inline-flex items-center gap-2 whitespace-nowrap rounded-md font-medium text-white h-11 px-4 py-3 text-base w-full justify-center ${anySelected ? "bg-[#6750A4] hover:bg-[#6a559f]" : "bg-gray-300 cursor-not-allowed"
-            }`}
-          aria-label="order"
+          className={cn(
+            "w-full h-11 flex items-center justify-center gap-2",
+            anySelected ? "bg-[#6750A4] hover:bg-[#6a559f] text-white" : "bg-gray-300 text-white cursor-not-allowed hover:bg-gray-300"
+          )}
         >
           Đặt hàng
-          <span className="inline-flex items-center gap-2 whitespace-nowrap size-5 min-w-5">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-            </svg>
-          </span>
-        </button>
+          <ArrowRight className="h-5 w-5" />
+        </Button>
       </div>
 
-      {/* Variant Selection Popup - 420x301 */}
-      {showVariantPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md w-[420px] h-[301px] flex flex-col">
-            {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h3 className="text-base font-medium">Cập nhật sản phẩm</h3>
-              <button
-                onClick={() => setShowVariantPopup(false)}
-                className="focus:outline-none"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+      {/* Variant Selection Dialog */}
+      <Dialog open={showVariantPopup} onOpenChange={setShowVariantPopup}>
+        <DialogContent className="w-[420px] p-0 rounded-md">
+          <DialogHeader className="p-4 border-b border-gray-200">
+            <DialogTitle className="text-base font-medium">Cập nhật sản phẩm</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 flex items-center p-4">
+            {/* Image container with padding */}
+            <div className="p-[17px]">
+              <img
+                src={cartItems.find(item => item.id === selectedItemId)?.imageUrl || ""}
+                alt="Product"
+                className="w-[88px] h-[117px] object-cover rounded"
+              />
             </div>
-
-            {/* Content */}
-            <div className="flex-1 flex items-center p-4">
-              {/* Image container with padding */}
-              <div className="p-[17px]">
-                <img
-                  src={cartItems.find(item => item.id === selectedItemId)?.imageUrl || ""}
-                  alt="Product"
-                  className="w-[88px] h-[117px] object-cover rounded"
-                />
+            {/* Information on the right */}
+            <div className="flex-1 pl-4 flex flex-col justify-between h-full">
+              <h4 className="text-sm font-medium">
+                {cartItems.find(item => item.id === selectedItemId)?.name || ""}
+              </h4>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-[20px] rounded-[16px] text-[14px] w-[85px] font-medium px-2 py-0",
+                    selectedSize === "Simple" 
+                      ? "border-purple-500 text-purple-500" 
+                      : "border-gray-300 text-gray-700"
+                  )}
+                  onClick={() => setSelectedSize("Simple")}
+                >
+                  Simple
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-[20px] rounded-[16px] text-[14px] w-[85px] font-medium px-2 py-0",
+                    selectedSize === "Special" 
+                      ? "border-purple-500 text-purple-500" 
+                      : "border-gray-300 text-gray-700"
+                  )}
+                  onClick={() => setSelectedSize("Special")}
+                >
+                  Special
+                </Button>
               </div>
-              {/* Information on the right */}
-              <div className="flex-1 pl-4 flex flex-col justify-between h-full">
-                <h4 className="text-sm font-medium">
-                  {cartItems.find(item => item.id === selectedItemId)?.name || ""}
-                </h4>
-                <div className="flex gap-2">
-                  <button
-                    className={`border rounded-[16px] text-[14px] w-[85px] h-[20px] flex items-center justify-center font-medium ${selectedSize === "Simple" ? "border-purple-500 text-purple-500" : "border-gray-300 text-gray-700"}`}
-                    onClick={() => setSelectedSize("Simple")}
-                  >
-                    Simple
-                  </button>
-                  <button
-                    className={`border rounded-[16px] text-[14px] w-[85px] h-[20px] flex items-center justify-center font-medium ${selectedSize === "Special" ? "border-purple-500 text-purple-500" : "border-gray-300 text-gray-700"}`}
-                    onClick={() => setSelectedSize("Special")}
-                  >
-                    Special
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-200">
-              <button
-                onClick={handleUpdateSize}
-                disabled={!selectedSize}
-                className={`w-full h-[40px] text-sm rounded-md text-white font-medium ${selectedSize ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-300 cursor-not-allowed"
-                  }`}
-              >
-                Cập nhật
-              </button>
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter className="flex p-4 border-t border-gray-200">
+            <Button
+              onClick={handleUpdateSize}
+              disabled={!selectedSize}
+              className={cn(
+                "w-full h-[40px] text-sm rounded-md text-white font-medium",
+                selectedSize 
+                  ? "bg-purple-600 hover:bg-purple-700" 
+                  : "bg-gray-300 cursor-not-allowed hover:bg-gray-300"
+              )}
+            >
+              Cập nhật
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Confirmation Popup - 420x242 */}
-      {showDeletePopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-md w-[420px] h-[242px] flex flex-col">
-            {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h3 className="text-base font-medium">Xóa sản phẩm</h3>
-              <button
-                onClick={() => setShowDeletePopup(false)}
-                className="focus:outline-none"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeletePopup} onOpenChange={setShowDeletePopup}>
+        <DialogContent className="w-[420px] p-0 rounded-md">
+          <DialogHeader className="p-4 border-b border-gray-200">
+            <DialogTitle className="text-base font-medium">Xóa sản phẩm</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 flex flex-col items-center justify-center p-4">
+            <div className="mb-4 bg-gray-100 rounded-full p-3">
+              <Trash2 size={24} />
             </div>
-
-            {/* Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-4">
-              <div className="mb-4">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="48" height="48" rx="24" fill="#F2F2F2" />
-                  <path d="M32 18L16 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16 18L32 34" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <p className="text-center text-sm">Bạn có chắc muốn xóa sản phẩm này không?</p>
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-200 flex justify-between">
-              <button
-                onClick={() => setShowDeletePopup(false)}
-                className="w-1/2 py-3 text-gray-700 border border-gray-300 rounded-md mr-2 hover:bg-gray-50 text-sm bg-white"
-              >
-                Không
-              </button>
-              <button
-                onClick={() => selectedItemId && handleRemoveItem(selectedItemId)}
-                className="w-1/2 py-3 bg-gray-200 text-gray-700 rounded-md ml-2 hover:bg-gray-300 text-sm"
-              >
-                Xóa
-              </button>
-            </div>
+            <DialogDescription className="text-center text-sm">
+              Bạn có chắc muốn xóa sản phẩm này không?
+            </DialogDescription>
           </div>
-        </div>
-      )}
+          <DialogFooter className="flex p-4 border-t border-gray-200 justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeletePopup(false)}
+              className="w-1/2 py-3 text-gray-700 border border-gray-300 rounded-md mr-2 hover:bg-gray-50 text-sm bg-white"
+            >
+              Không
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => selectedItemId && handleRemoveItem(selectedItemId)}
+              className="w-1/2 py-3 bg-gray-200 text-gray-700 rounded-md ml-2 hover:bg-gray-300 text-sm"
+            >
+              Xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

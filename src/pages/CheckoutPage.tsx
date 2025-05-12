@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import AddressPopup from '@/component/AddressPopup';
 
 type CartItem = {
   id: number;
@@ -167,26 +168,61 @@ const CheckoutPage: React.FC = () => {
             </svg>
             <h2 className="text-lg font-medium">Hình thức nhận hàng</h2>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={deliveryMethod === 'delivery' ? 'default' : 'outline'}
+          <div className="relative items-center justify-center rounded-full bg-gray-100 border border-gray-200 grid w-full grid-cols-2 p-1">
+            {/* Sliding background */}
+            <div 
+              className="absolute top-1 bottom-1 w-1/2 bg-white rounded-full shadow-sm transition-all duration-300 ease-in-out"
+              style={{ 
+                transform: deliveryMethod === 'delivery' 
+                  ? 'translateX(0%)' 
+                  : 'translateX(100%)'
+              }}
+            />
+            
+            {/* Delivery Tab */}
+            <button 
+              type="button" 
+              role="tab" 
+              aria-selected={deliveryMethod === 'delivery'} 
+              aria-controls="delivery-content" 
+              data-state={deliveryMethod === 'delivery' ? 'active' : 'inactive'} 
+              id="delivery-trigger" 
+              className={`relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-full p-2 text-sm transition-colors duration-300 ${
+                deliveryMethod === 'delivery' 
+                  ? 'text-black' 
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
               onClick={() => setDeliveryMethod('delivery')}
-              className="h-11 rounded-full"
+              tabIndex={-1}
+              data-orientation="horizontal"
             >
               Giao tận nơi
-            </Button>
-            <Button
-              variant={deliveryMethod === 'pickup' ? 'default' : 'outline'}
+            </button>
+            
+            {/* Pickup Tab */}
+            <button 
+              type="button" 
+              role="tab" 
+              aria-selected={deliveryMethod === 'pickup'} 
+              aria-controls="pickup-content" 
+              data-state={deliveryMethod === 'pickup' ? 'active' : 'inactive'} 
+              id="pickup-trigger" 
+              className={`relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-full p-2 text-sm transition-colors duration-300 ${
+                deliveryMethod === 'pickup' 
+                  ? 'text-black' 
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
               onClick={() => setDeliveryMethod('pickup')}
-              className="h-11 rounded-full"
+              tabIndex={-1}
+              data-orientation="horizontal"
             >
               Nhận tại cửa hàng
-            </Button>
+            </button>
           </div>
           {deliveryMethod === 'delivery' && (
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2 animate-fade-in">
               <div
-                className="cursor-pointer rounded-lg border border-gray-200 p-4 hover:border-gray-300"
+                className="cursor-pointer rounded-lg border border-gray-200 p-4 hover:border-gray-300 transition-all duration-300"
                 onClick={() => setShowAddressPopup(true)}
               >
                 <div className="flex items-center justify-between">
@@ -198,9 +234,9 @@ const CheckoutPage: React.FC = () => {
             </div>
           )}
           {deliveryMethod === 'pickup' && (
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2 animate-fade-in">
               <div
-                className="cursor-pointer rounded-lg border border-gray-200 p-4 hover:border-gray-300"
+                className="cursor-pointer rounded-lg border border-gray-200 p-4 hover:border-gray-300 transition-all duration-300"
                 onClick={() => setShowAddressPopup(true)}
               >
                 <div className="flex items-center justify-between">
@@ -316,28 +352,13 @@ const CheckoutPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Address Selection Popup */}
-      <Dialog open={showAddressPopup} onOpenChange={setShowAddressPopup}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{deliveryMethod === 'delivery' ? 'Chọn địa chỉ giao hàng' : 'Chọn cửa hàng nhận'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            {['Thư viện Dương Liễu, Xã Dương Liễu, Huyện Hoài Đức, TP. Hà Nội', '123 Đường Láng, Đống Đa, Hà Nội'].map((address) => (
-              <div
-                key={address}
-                className="cursor-pointer rounded-lg border p-3 hover:bg-gray-100"
-                onClick={() => handleAddressSelect(address)}
-              >
-                {address}
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddressPopup(false)}>Hủy</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddressPopup 
+        open={showAddressPopup}
+        onOpenChange={setShowAddressPopup}
+        onAddressSelect={handleAddressSelect} setDataa={function (value: string): void {
+          throw new Error('Function not implemented.');
+        } }/>
+
 
       {/* Promotion Selection Popup */}
       <Dialog open={showPromotionPopup} onOpenChange={setShowPromotionPopup}>
