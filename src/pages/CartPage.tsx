@@ -316,11 +316,11 @@ const CartPage: React.FC = () => {
                 />
               </div>
               {/* Information on the right */}
-              <div className="flex-1 pl-4 flex flex-col justify-between">
-                <h4 className="text-sm font-medium mb-2">
+              <div className="flex-1 pl-4 flex flex-col justify-between h-full">
+                <h4 className="text-sm font-medium">
                   {cartItems.find(item => item.id === selectedItemId)?.name || ""}
                 </h4>
-                <div className="flex justify-end gap-2">
+                <div className="flex gap-2">
                   <button
                     className={`border rounded-[16px] text-[14px] w-[85px] h-[20px] flex items-center justify-center font-medium ${selectedSize === "Simple" ? "border-purple-500 text-purple-500" : "border-gray-300 text-gray-700"}`}
                     onClick={() => setSelectedSize("Simple")}
