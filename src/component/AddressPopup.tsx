@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import axios from 'axios';
-import { Search } from 'lucide-react';
+import { Search, ChevronRight, X } from 'lucide-react';
 
 interface AddressPopupProps {
   open: boolean;
@@ -53,6 +53,17 @@ const AddressPopup: React.FC<AddressPopupProps> = ({
     }
   };
 
+  const handleReset = () => {
+    if (selectedTab === 'ward') {
+      setSelectedTab('district');
+      setWards([]);
+    } else if (selectedTab === 'district') {
+      setSelectedTab('province');
+      setSelectedDistrict(null);
+      setDistricts([]);
+    }
+  };
+
   const filteredItems = () => {
     const term = searchTerm.toLowerCase();
     if (selectedTab === 'province') return provinces.filter(p => p.name.toLowerCase().includes(term));
@@ -67,6 +78,12 @@ const AddressPopup: React.FC<AddressPopupProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-primary p-4">
           <p className="text-heading-md text-theme-text font-medium">Chọn địa chỉ nhận hàng</p>
+          <button 
+            onClick={() => onOpenChange(false)}
+            className="p-1 rounded-full hover:bg-gray-100"
+          >
+            {/* <X className="w-5 h-5 text-gray-500" /> */}
+          </button>
         </div>
 
         {/* Body */}
@@ -87,7 +104,7 @@ const AddressPopup: React.FC<AddressPopupProps> = ({
                   className={`
                     flex justify-center items-center text-label-md rounded-full transition-all duration-200 
                     ${disabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-purple-100'}
-                    ${isActive ? 'bg-[#b2a8da] text-white font-medium' : ''}
+                    ${isActive ? 'bg-[#6750A4] text-white font-medium' : ''}
                   `}
                 >
                   {label}
@@ -97,14 +114,25 @@ const AddressPopup: React.FC<AddressPopupProps> = ({
           </div>
 
           {/* Address preview */}
-          {selectedProvince && selectedDistrict && (
-            <p className="text-label-sm mt-2 mb-1 pl-2 text-theme-text">
-              {`${selectedDistrict?.name}, ${selectedProvince?.name}`}
-            </p>
+          {(selectedProvince || selectedDistrict) && (
+            <div className="flex items-center justify-between bg-purple-50 rounded-lg px-4 py-2">
+              <div className="text-sm text-gray-700">
+                {selectedProvince && <span>{selectedProvince.name}</span>}
+                {selectedDistrict && <span> &gt; {selectedDistrict.name}</span>}
+              </div>
+              {selectedTab !== 'province' && (
+                <button
+                  onClick={handleReset}
+                  className="text-purple-600 text-sm font-medium hover:underline"
+                >
+                  Quay lại
+                </button>
+              )}
+            </div>
           )}
 
           {/* Search Input */}
-          <div className="flex items-center border border-border-primary rounded-full bg-theme-bg px-4 py-2">
+          <div className="flex items-center border border-gray-300 rounded-full bg-white px-4 py-2 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-200">
             <Search className="w-5 h-5 text-gray-500" />
             <input
               type="text"
@@ -116,24 +144,59 @@ const AddressPopup: React.FC<AddressPopupProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          {/* Items */}
-          <div className="space-y-2 h-[330px] overflow-y-auto">
-            {filteredItems().map(item => (
-              <p
-                key={item.code}
-                onClick={() => handleSelect(item)}
-                className="text-body-md text-theme-text px-4 py-2 rounded-md cursor-pointer hover:bg-purple-100 transition duration-200"
-              >
-                {item.name}
-              </p>
-            ))}
+          {/* Items - with hidden scrollbar */}
+          <div className="h-[330px] overflow-y-auto scrollbar-hide">
+            <div className="space-y-1 pr-1">
+              {filteredItems().map(item => (
+                <button
+                  key={item.code}
+                  onClick={() => handleSelect(item)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-purple-50 transition-colors duration-200 focus:outline-none focus:bg-purple-100"
+                >
+                  <span className="font-medium">{item.name}</span>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+              ))}
+              
+              {filteredItems().length === 0 && (
+                <div className="py-8 text-center text-gray-500">
+                  Không tìm thấy kết quả phù hợp
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+
+// Thêm styles để ẩn scrollbar vào global CSS hoặc thêm vào component
+// Đây là cách thêm lớp CSS tùy chỉnh trong Tailwind
+const addScrollbarHideStyles = () => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
+// Thêm styles khi component được import
+if (typeof window !== 'undefined') {
+  addScrollbarHideStyles();
+}
 
 export default AddressPopup;
