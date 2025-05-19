@@ -5,6 +5,12 @@ import StepProcess, { type Step } from "./component/StepProcess";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import PaymentPage from "./pages/PaymentPage";
+import CODPaymentPage from "./pages/payment/CODPaymentPage";
+
+import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage";
+import EWalletPaymentPage from "./pages/payment/EWalletPaymentPage";
+import BankingPaymentPage from "./pages/payment/BankingPaymentPage";
+import PaymentFailedPage from "./pages/payment/PaymentFailedPage";
 
 // Constants for layout
 const HEADER_HEIGHT = 65; // Updated to match your requirement
@@ -68,6 +74,11 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment/cod" element={<CODPaymentPage />} />
+          <Route path="/payment/ewallet" element={<EWalletPaymentPage />} />
+          <Route path="/payment/banking" element={<BankingPaymentPage />} />
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/failed" element={<PaymentFailedPage />} />
         </Routes>
       </main>
     </div>

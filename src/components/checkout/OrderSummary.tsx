@@ -6,7 +6,6 @@ export const OrderSummary: React.FC = () => {
   const { 
     totalPrice, 
     discount, 
-    shippingFee, 
     finalPrice, 
     formatPrice,
     selectedPromotion,

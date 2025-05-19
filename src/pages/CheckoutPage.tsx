@@ -10,6 +10,8 @@ import AddressPopup from '@/component/AddressPopup';
 import BranchPopup from '@/component/BranchPopup';
 import { useCheckout } from '@/context/CheckoutContext';
 import { PromotionPopup } from '@/components/checkout/PromotionPopup';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutContent: React.FC = () => {
   const { 
@@ -19,6 +21,8 @@ const CheckoutContent: React.FC = () => {
     showBranchPopup,
     setShowBranchPopup
   } = useCheckout();
+
+  const navigate = useNavigate();
 
   const handleAddressSelect = (address: string) => {
     setSelectedAddress(address);
@@ -42,7 +46,7 @@ const CheckoutContent: React.FC = () => {
         open={showAddressPopup}
         onOpenChange={setShowAddressPopup}
         onAddressSelect={handleAddressSelect}
-        setDataa={function (value: string): void {
+        setDataa={function (_value: string): void {
           throw new Error('Function not implemented.');
         }}
       />
@@ -50,16 +54,18 @@ const CheckoutContent: React.FC = () => {
       <BranchPopup
         open={showBranchPopup}
         onOpenChange={setShowBranchPopup}
-        onBranchSelect={function (branch: string): void {
+        onBranchSelect={function (_branch: string): void {
           throw new Error('Function not implemented.');
         }}
-        setDataa={function (value: string): void {
+        setDataa={function (_value: string): void {
           throw new Error('Function not implemented.');
         }}
       />
 
       <PromotionPopup />
       <PaymentPopup />
+
+      
     </div>
   );
 };

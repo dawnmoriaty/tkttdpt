@@ -1,26 +1,48 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { OrderSummary } from "@/components/payment/OrderSummary";
 
 const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [orderInfo, setOrderInfo] = useState({
+    orderId: "ORD" + Math.floor(Math.random() * 1000000),
+    date: new Date().toLocaleDateString(),
+    totalPrice: 998000,
+    discount: 0,
+    shippingFee: 0
+  });
 
-  // Simulating total price from cart (this would come from context or state management in a real app)
-  const totalPrice = 798000; // Example total
-  const discount = 0;
-  const freeShipThreshold = 498000;
+  // Lấy phương thức thanh toán từ query params nếu có
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const method = params.get('method');
+    if (method) {
+      setPaymentMethod(method);
+    }
+  }, [location]);
 
   const handleSubmit = () => {
-    // In a real app, you would process the payment here
-    alert(`Đặt hàng thành công với phương thức thanh toán: ${
-      paymentMethod === "cod" ? "Thanh toán khi nhận hàng" : 
-      paymentMethod === "banking" ? "Chuyển khoản ngân hàng" : 
-      "Thanh toán qua ví điện tử"
-    }`);
-    
-    // After successful payment, redirect to homepage or confirmation page
-    navigate("/cart");
+    // Điều hướng dựa trên phương thức thanh toán đã chọn
+    switch (paymentMethod) {
+      case "cod":
+        navigate("/payment/success", { 
+          state: { 
+            method: 'cod',
+            orderInfo: orderInfo 
+          } 
+        });
+        break;
+      case "banking":
+        navigate("/payment/banking");
+        break;
+      case "ewallet":
+        navigate("/payment/ewallet");
+        break;
+      default:
+        navigate("/payment/cod");
+    }
   };
 
   return (
@@ -33,16 +55,16 @@ const PaymentPage: React.FC = () => {
             {/* COD Payment Option */}
             <div 
               className={`border rounded-lg p-4 cursor-pointer ${
-                paymentMethod === "cod" ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                paymentMethod === "cod" ? "border-purple-500 bg-purple-50" : "border-gray-300"
               }`}
               onClick={() => setPaymentMethod("cod")}
             >
               <div className="flex items-center gap-3">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  paymentMethod === "cod" ? "border-blue-500" : "border-gray-400"
+                  paymentMethod === "cod" ? "border-purple-500" : "border-gray-400"
                 }`}>
                   {paymentMethod === "cod" && (
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                   )}
                 </div>
                 <div className="font-medium">Thanh toán khi nhận hàng (COD)</div>
@@ -57,27 +79,23 @@ const PaymentPage: React.FC = () => {
             {/* Bank Transfer Option */}
             <div 
               className={`border rounded-lg p-4 cursor-pointer ${
-                paymentMethod === "banking" ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                paymentMethod === "banking" ? "border-purple-500 bg-purple-50" : "border-gray-300"
               }`}
               onClick={() => setPaymentMethod("banking")}
             >
               <div className="flex items-center gap-3">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  paymentMethod === "banking" ? "border-blue-500" : "border-gray-400"
+                  paymentMethod === "banking" ? "border-purple-500" : "border-gray-400"
                 }`}>
                   {paymentMethod === "banking" && (
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                   )}
                 </div>
-                <div className="font-medium">Chuyển khoản ngân hàng</div>
+                <div className="font-medium">Thẻ ATM/Internet Banking</div>
               </div>
               {paymentMethod === "banking" && (
                 <div className="mt-3 text-sm text-gray-600 pl-8">
-                  <p className="mb-2">Thông tin tài khoản:</p>
-                  <p>Ngân hàng: BIDV</p>
-                  <p>Số tài khoản: 123456789</p>
-                  <p>Chủ tài khoản: CÔNG TY ABC</p>
-                  <p className="mt-2">Nội dung chuyển khoản: [Mã đơn hàng] - [Số điện thoại]</p>
+                  <p className="mb-2">Thanh toán bằng thẻ ngân hàng nội địa hoặc Internet Banking.</p>
                 </div>
               )}
             </div>
@@ -85,16 +103,16 @@ const PaymentPage: React.FC = () => {
             {/* E-wallet Option */}
             <div 
               className={`border rounded-lg p-4 cursor-pointer ${
-                paymentMethod === "ewallet" ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                paymentMethod === "ewallet" ? "border-purple-500 bg-purple-50" : "border-gray-300"
               }`}
               onClick={() => setPaymentMethod("ewallet")}
             >
               <div className="flex items-center gap-3">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  paymentMethod === "ewallet" ? "border-blue-500" : "border-gray-400"
+                  paymentMethod === "ewallet" ? "border-purple-500" : "border-gray-400"
                 }`}>
                   {paymentMethod === "ewallet" && (
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                   )}
                 </div>
                 <div className="font-medium">Ví điện tử (MoMo, ZaloPay, VNPay)</div>
@@ -110,7 +128,12 @@ const PaymentPage: React.FC = () => {
       </div>
       
       <div className="lg:w-[320px]">
-        <div className="sticky" style={{ top: 140 }}> {/* Adjusted for header + step process */}
+        <div className="sticky" style={{ top: 140 }}>
+          <OrderSummary 
+            subtotal={orderInfo.totalPrice} 
+            discount={orderInfo.discount}
+            shippingFee={orderInfo.shippingFee}
+          />
           <div className="mt-4">
             <button
               onClick={handleSubmit}
